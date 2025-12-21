@@ -21,7 +21,7 @@ const storyData = [
     {
         message: "ステージ2：お腹が空いたようだ",
         left: { text: "腐った肉", isDie: false },
-        right: { text: "金のリンゴ", isDie: true, reason: "「成金趣味はあかん。爆発しろ！」" }
+        right: { text: "金のリンゴ", isDie: true, reason: "「成金趣味はあかん。爆竹を食らえ！」" }
     }
 ];
 
@@ -29,7 +29,6 @@ function initPlayer() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    // ぬるーっと戻る挙動のためtransitionを一時的に有効にする状態で位置指定
     playerRoot.classList.remove('dragging');
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
@@ -58,7 +57,7 @@ playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag
 function startDrag() {
     if (isProcessing) return;
     isDragging = true;
-    playerRoot.classList.add('dragging'); // transitionをオフにする
+    playerRoot.classList.add('dragging');
     player.classList.add('shaking');
 }
 
@@ -78,11 +77,13 @@ window.addEventListener('touchend', endDrag);
 
 function endDrag(e) {
     if (!isDragging || isProcessing) return;
-    isDragging = false;
-    playerRoot.classList.remove('dragging'); // transitionをオンにする
-    player.classList.remove('shaking');
     
-    // 指を離した瞬間の座標で判定
+    // 状態を確定
+    isDragging = false;
+    playerRoot.classList.remove('dragging');
+    player.classList.remove('shaking');
+
+    // 現在の座標で判定
     const px = parseInt(playerRoot.style.left) + 40;
     const py = parseInt(playerRoot.style.top) + 40;
     
@@ -95,31 +96,25 @@ function endDrag(e) {
     } else if (isInside(px, py, rectR)) {
         handleChoice(stage.right, rightChoice);
     } else {
-        // どこでもない場所で離したらぬるーっと戻る
+        // 判定外なら爆発せず、ぬるーっと戻る
         initPlayer();
     }
 }
 
 function handleChoice(choice, element) {
-    isProcessing = true;
+    isProcessing = true; // 演出が終わるまで操作不能
     if (choice.isDie) {
         triggerExplosion(choice.reason);
     } else {
         element.classList.add('correct-flash');
         successEffect.classList.remove('hidden');
         setTimeout(() => {
-            if (choice.isClear) {
-                alert("クリア！");
-                location.reload();
-            } else {
-                currentStage++;
-                if(currentStage >= storyData.length) {
-                    alert("全ステージクリア！");
-                    location.reload();
-                } else {
-                    initPlayer();
-                }
+            currentStage++;
+            if(currentStage >= storyData.length) {
+                alert("全ステージクリア！12/28 配信をお楽しみに！");
+                currentStage = 0;
             }
+            initPlayer();
         }, 1000);
     }
 }
@@ -135,8 +130,8 @@ function triggerExplosion(reason) {
 }
 
 function die(reason) {
-    overlay.classList.remove('hidden');
     deathReason.innerText = reason;
+    overlay.classList.remove('hidden');
 }
 
 function resetGame() {
