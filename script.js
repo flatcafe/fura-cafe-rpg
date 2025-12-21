@@ -1,72 +1,92 @@
 const playerRoot = document.getElementById('player-root');
 const player = document.getElementById('player');
+const explosion = document.getElementById('explosion');
 const overlay = document.getElementById('overlay');
 const deathReason = document.getElementById('death-reason');
 const leftChoice = document.getElementById('choice-left');
 const rightChoice = document.getElementById('choice-right');
 
 let isDragging = false;
+const startPos = { x: window.innerWidth / 2 - 40, y: window.innerHeight / 2 - 40 };
+
+// 初期位置にセット
+function initPlayer() {
+    playerRoot.style.left = `${startPos.x}px`;
+    playerRoot.style.top = `${startPos.y}px`;
+    player.classList.remove('hidden');
+    explosion.classList.add('hidden');
+    isDragging = false;
+}
+
+initPlayer();
 
 // ドラッグ開始
 playerRoot.addEventListener('mousedown', startDrag);
-playerRoot.addEventListener('touchstart', startDrag);
+playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); });
 
-function startDrag(e) {
+function startDrag() {
     isDragging = true;
     player.classList.add('shaking');
-    playerRoot.style.cursor = 'grabbing';
 }
 
-// 動かしている最中
+// 移動中
 window.addEventListener('mousemove', drag);
 window.addEventListener('touchmove', (e) => drag(e.touches[0]));
 
 function drag(e) {
     if (!isDragging) return;
     
-    // マウス位置に追従（少し遅れる「隙」を作っています）
-    const x = e.clientX - 30;
-    const y = e.clientY - 30;
+    const x = e.clientX - 40;
+    const y = e.clientY - 40;
     playerRoot.style.left = `${x}px`;
     playerRoot.style.top = `${y}px`;
 
-    checkCollision(x, y);
+    // 移動中に選択肢に触れたかチェック
+    checkCollision(x + 40, y + 40);
 }
 
-// 指を離した時の判定（理不尽死）
+// 指を離した時
 window.addEventListener('mouseup', endDrag);
 window.addEventListener('touchend', endDrag);
 
 function endDrag() {
     if (!isDragging) return;
-    isDragging = false;
-    player.classList.remove('shaking');
     
-    // 選択肢の上じゃない場所で離すと死亡
-    die("「最後まで責任持って運べや！」 by 若凪");
+    // 選択肢に到達せずに離した場合は爆発してリセット
+    triggerExplosion("「中途半端に放り出すな！」 by 若凪");
+    setTimeout(initPlayer, 1200); 
 }
 
-function checkCollision(x, y) {
+function checkCollision(px, py) {
     const rectL = leftChoice.getBoundingClientRect();
     const rectR = rightChoice.getBoundingClientRect();
 
-    // 左の選択肢に触れた
-    if (x > rectL.left && x < rectL.right && y > rectL.top && y < rectL.bottom) {
-        die("「安全な道？そんなもんあるわけないやろ！」");
-    }
-    // 右の選択肢に触れた
-    if (x > rectR.left && x < rectR.right && y > rectR.top && y < rectR.bottom) {
-        // ここに次のステージへの処理を書けますが、今はとりあえず死
-        die("「怪しい洞窟に入って即クリーパー。お疲れ様。」");
+    if (isInside(px, py, rectL)) {
+        isDragging = false;
+        triggerExplosion("「安全な道？そんなもんあるわけないやろ！」");
+    } else if (isInside(px, py, rectR)) {
+        isDragging = false;
+        triggerExplosion("「怪しい洞窟に入って即クリーパー。お疲れ様。」");
     }
 }
 
+function isInside(x, y, rect) {
+    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+}
+
+function triggerExplosion(reason) {
+    player.classList.add('hidden');
+    explosion.classList.remove('hidden');
+    player.classList.remove('shaking');
+    setTimeout(() => die(reason), 600);
+}
+
 function die(reason) {
-    isDragging = false;
     deathReason.innerText = reason;
     overlay.classList.remove('hidden');
 }
 
 function resetGame() {
-    location.reload();
+    overlay.classList.add('hidden');
+    initPlayer();
 }
