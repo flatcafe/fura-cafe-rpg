@@ -11,29 +11,31 @@ body {
     width: 100vw; 
     height: 100vh; 
     position: relative; 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
 }
 
 #status-message { 
     position: absolute; 
     top: 40px; 
+    left: 0;
+    width: 100%;
+    text-align: center;
     font-size: 1.5rem; 
     font-weight: bold;
     text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
     z-index: 5;
 }
 
-/* 選択肢を画面の左右限界まで離す */
+/* 選択肢を画面の左右端に配置 */
 .choices-container {
     position: absolute; 
+    top: 50%;
+    transform: translateY(-50%);
     width: 100%; 
     display: flex; 
     justify-content: space-between; 
-    padding: 0 10px; /* 余白を最小にして距離を最大化 */
+    padding: 0 20px; 
     box-sizing: border-box;
-    pointer-events: none; /* コンテナ自体がクリックを邪魔しないように設定 */
+    pointer-events: none; 
 }
 
 .choice {
@@ -48,7 +50,7 @@ body {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: center;
-    pointer-events: auto; /* 選択肢自体は判定を有効にする */
+    pointer-events: auto;
 }
 
 .left { border-color: #3498db; }
@@ -56,6 +58,7 @@ body {
 
 #player-root { 
     position: absolute; 
+    /* 初期位置はScriptで制御 */
     width: 80px; 
     height: 80px; 
     cursor: grab; 
