@@ -9,7 +9,7 @@ const rightChoice = document.getElementById('choice-right');
 const statusMessage = document.getElementById('status-message');
 
 let isDragging = false;
-let isProcessing = false; // 演出中の操作防止フラグ
+let isProcessing = false; 
 let currentStage = 0;
 
 const storyData = [
@@ -33,17 +33,20 @@ const storyData = [
 function initPlayer() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
+    
+    // 位置リセット
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    player.classList.remove('hidden');
+    // クラスのリセット（演出の残骸を消す）
+    player.classList.remove('hidden', 'shaking');
     explosion.classList.add('hidden');
     successEffect.classList.add('hidden');
     leftChoice.classList.remove('correct-flash');
     rightChoice.classList.remove('correct-flash');
     
     isDragging = false;
-    isProcessing = false;
+    isProcessing = false; // 操作ロック解除
     
     const stage = storyData[currentStage];
     statusMessage.innerText = stage.message;
@@ -83,7 +86,10 @@ function endDrag() {
     isDragging = false;
     player.classList.remove('shaking');
     
-    if (!isOverChoice(parseInt(playerRoot.style.left) + 40, parseInt(playerRoot.style.top) + 40)) {
+    const px = parseInt(playerRoot.style.left) + 40;
+    const py = parseInt(playerRoot.style.top) + 40;
+
+    if (!isOverChoice(px, py)) {
         triggerExplosion("「中途半端に放り出すな！」 by 若凪");
     }
 }
@@ -107,14 +113,16 @@ function checkCollision(px, py) {
 }
 
 function handleChoice(choice, element) {
+    if (isProcessing) return; // 二重処理防止
+    
     isDragging = false;
-    isProcessing = true;
+    isProcessing = true; // 操作をロック
     player.classList.remove('shaking');
 
     if (choice.isDie) {
         triggerExplosion(choice.reason);
     } else {
-        // 正解演出
+        // 【修正】正解演出：クラスを付与してからウェイトを置く
         element.classList.add('correct-flash');
         successEffect.classList.remove('hidden');
         
@@ -126,7 +134,7 @@ function handleChoice(choice, element) {
                 currentStage++;
                 initPlayer();
             }
-        }, 800); // 演出を見せるためのウェイト
+        }, 1000); // 演出時間を1秒に延長
     }
 }
 
@@ -135,6 +143,7 @@ function isInside(x, y, rect) {
 }
 
 function triggerExplosion(reason) {
+    isProcessing = true;
     player.classList.add('hidden');
     explosion.classList.remove('hidden');
     setTimeout(() => die(reason), 600);
