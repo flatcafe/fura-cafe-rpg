@@ -20,7 +20,7 @@ let currentEnemySpeed = 0;
 let enemySize = 80;
 
 // 画面の85%を最大サイズに設定（わずかな隙間を残す）
-const getMaxSize = () => Math.min(window.innerWidth, window.innerHeight) * 0.85;
+const getMaxSize = () => Math.min(window.innerWidth, window.innerHeight) * 0.50;
 
 const storyData = [
     {
