@@ -22,11 +22,6 @@ const storyData = [
         message: "ステージ2：お腹が空いたようだ",
         left: { text: "腐った肉", isDie: false },
         right: { text: "金のリンゴ", isDie: true, reason: "「成金趣味はあかん。爆発しろ！」" }
-    },
-    {
-        message: "最終ステージ：再始動の扉",
-        left: { text: "戻る", isDie: true, reason: "「後退は許さん！」" },
-        right: { text: "進む", isDie: false, isClear: true }
     }
 ];
 
@@ -34,11 +29,11 @@ function initPlayer() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    // 位置リセット
+    // ぬるーっと戻る挙動のためtransitionを一時的に有効にする状態で位置指定
+    playerRoot.classList.remove('dragging');
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    // クラスのリセット（演出の残骸を消す）
     player.classList.remove('hidden', 'shaking');
     explosion.classList.add('hidden');
     successEffect.classList.add('hidden');
@@ -46,7 +41,7 @@ function initPlayer() {
     rightChoice.classList.remove('correct-flash');
     
     isDragging = false;
-    isProcessing = false; // 操作ロック解除
+    isProcessing = false; 
     
     const stage = storyData[currentStage];
     statusMessage.innerText = stage.message;
@@ -63,6 +58,7 @@ playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag
 function startDrag() {
     if (isProcessing) return;
     isDragging = true;
+    playerRoot.classList.add('dragging'); // transitionをオフにする
     player.classList.add('shaking');
 }
 
@@ -75,32 +71,21 @@ function drag(e) {
     const y = e.clientY - 40;
     playerRoot.style.left = `${x}px`;
     playerRoot.style.top = `${y}px`;
-    checkCollision(e.clientX, e.clientY);
 }
 
 window.addEventListener('mouseup', endDrag);
 window.addEventListener('touchend', endDrag);
 
-function endDrag() {
+function endDrag(e) {
     if (!isDragging || isProcessing) return;
     isDragging = false;
+    playerRoot.classList.remove('dragging'); // transitionをオンにする
     player.classList.remove('shaking');
     
+    // 指を離した瞬間の座標で判定
     const px = parseInt(playerRoot.style.left) + 40;
     const py = parseInt(playerRoot.style.top) + 40;
-
-    if (!isOverChoice(px, py)) {
-        triggerExplosion("「中途半端に放り出すな！」 by 若凪");
-    }
-}
-
-function isOverChoice(px, py) {
-    const rectL = leftChoice.getBoundingClientRect();
-    const rectR = rightChoice.getBoundingClientRect();
-    return isInside(px, py, rectL) || isInside(px, py, rectR);
-}
-
-function checkCollision(px, py) {
+    
     const rectL = leftChoice.getBoundingClientRect();
     const rectR = rightChoice.getBoundingClientRect();
     const stage = storyData[currentStage];
@@ -109,32 +94,33 @@ function checkCollision(px, py) {
         handleChoice(stage.left, leftChoice);
     } else if (isInside(px, py, rectR)) {
         handleChoice(stage.right, rightChoice);
+    } else {
+        // どこでもない場所で離したらぬるーっと戻る
+        initPlayer();
     }
 }
 
 function handleChoice(choice, element) {
-    if (isProcessing) return; // 二重処理防止
-    
-    isDragging = false;
-    isProcessing = true; // 操作をロック
-    player.classList.remove('shaking');
-
+    isProcessing = true;
     if (choice.isDie) {
         triggerExplosion(choice.reason);
     } else {
-        // 【修正】正解演出：クラスを付与してからウェイトを置く
         element.classList.add('correct-flash');
         successEffect.classList.remove('hidden');
-        
         setTimeout(() => {
             if (choice.isClear) {
-                alert("全ステージクリア！12/28 配信をお楽しみに！");
+                alert("クリア！");
                 location.reload();
             } else {
                 currentStage++;
-                initPlayer();
+                if(currentStage >= storyData.length) {
+                    alert("全ステージクリア！");
+                    location.reload();
+                } else {
+                    initPlayer();
+                }
             }
-        }, 1000); // 演出時間を1秒に延長
+        }, 1000);
     }
 }
 
@@ -143,15 +129,14 @@ function isInside(x, y, rect) {
 }
 
 function triggerExplosion(reason) {
-    isProcessing = true;
     player.classList.add('hidden');
     explosion.classList.remove('hidden');
     setTimeout(() => die(reason), 600);
 }
 
 function die(reason) {
-    deathReason.innerText = reason;
     overlay.classList.remove('hidden');
+    deathReason.innerText = reason;
 }
 
 function resetGame() {
