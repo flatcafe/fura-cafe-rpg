@@ -8,25 +8,22 @@ const rightChoice = document.getElementById('choice-right');
 
 let isDragging = false;
 
-// 初期位置を画面中央に設定する関数
 function initPlayer() {
-    const screenWidth = window.innerWidth;
-    const screenHeight = window.innerHeight;
+    // 確実に現在の画面中央を計算
+    const centerX = window.innerWidth / 2;
+    const centerY = window.innerHeight / 2;
     
-    // playerRootのサイズ(80px)の半分を引いて中央寄せ
-    playerRoot.style.left = `${(screenWidth / 2) - 40}px`;
-    playerRoot.style.top = `${(screenHeight / 2) - 40}px`;
+    playerRoot.style.left = `${centerX - 40}px`;
+    playerRoot.style.top = `${centerY - 40}px`;
     
     player.classList.remove('hidden');
     explosion.classList.add('hidden');
     isDragging = false;
 }
 
-// 起動時と画面リサイズ時に位置を合わせる
 window.addEventListener('load', initPlayer);
 window.addEventListener('resize', initPlayer);
 
-// ドラッグ開始
 playerRoot.addEventListener('mousedown', startDrag);
 playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); });
 
@@ -35,7 +32,6 @@ function startDrag() {
     player.classList.add('shaking');
 }
 
-// 移動中
 window.addEventListener('mousemove', drag);
 window.addEventListener('touchmove', (e) => drag(e.touches[0]));
 
@@ -50,7 +46,6 @@ function drag(e) {
     checkCollision(e.clientX, e.clientY);
 }
 
-// 指を離した時
 window.addEventListener('mouseup', endDrag);
 window.addEventListener('touchend', endDrag);
 
@@ -59,8 +54,16 @@ function endDrag() {
     isDragging = false;
     player.classList.remove('shaking');
     
-    // 選択肢に触れていない状態で離したら爆発
-    triggerExplosion("「中途半端に放り出すな！」 by 若凪");
+    // 判定内に入っていない状態で離したら爆発
+    if (!isOverChoice(parseInt(playerRoot.style.left) + 40, parseInt(playerRoot.style.top) + 40)) {
+        triggerExplosion("「中途半端に放り出すな！」 by 若凪");
+    }
+}
+
+function isOverChoice(px, py) {
+    const rectL = leftChoice.getBoundingClientRect();
+    const rectR = rightChoice.getBoundingClientRect();
+    return isInside(px, py, rectL) || isInside(px, py, rectR);
 }
 
 function checkCollision(px, py) {
@@ -77,7 +80,7 @@ function checkCollision(px, py) {
 }
 
 function isInside(x, y, rect) {
-    return x > rect.left && x < rect.right && y > rect.bottom - 120 && y < rect.bottom;
+    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
 }
 
 function triggerExplosion(reason) {
