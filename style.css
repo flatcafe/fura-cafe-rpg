@@ -25,21 +25,12 @@ body {
     z-index: 5;
 }
 
-/* 選択肢を画面の左右端に配置 */
-.choices-container {
-    position: absolute; 
+/* 選択肢を個別に、かつ確実に端へ配置 */
+.choice {
+    position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 100%; 
-    display: flex; 
-    justify-content: space-between; 
-    padding: 0 20px; 
-    box-sizing: border-box;
-    pointer-events: none; 
-}
-
-.choice {
-    width: 140px; 
+    width: 150px; 
     height: 120px; 
     border: 4px solid #fff;
     display: flex; 
@@ -50,15 +41,23 @@ body {
     font-size: 1.1rem;
     font-weight: bold;
     text-align: center;
-    pointer-events: auto;
+    z-index: 2;
 }
 
-.left { border-color: #3498db; }
-.right { border-color: #e74c3c; }
+/* 左端に固定 */
+.left { 
+    left: 20px; 
+    border-color: #3498db; 
+}
+
+/* 右端に固定 */
+.right { 
+    right: 20px; 
+    border-color: #e74c3c; 
+}
 
 #player-root { 
     position: absolute; 
-    /* 初期位置はScriptで制御 */
     width: 80px; 
     height: 80px; 
     cursor: grab; 
