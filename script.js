@@ -19,8 +19,8 @@ let enemyX = 0, enemyY = 0;
 let currentEnemySpeed = 0;
 let enemySize = 80;
 
-// 画面の85%を最大サイズに設定（わずかな隙間を残す）
-const getMaxSize = () => Math.min(window.innerWidth, window.innerHeight) * 0.50;
+// 【修正箇所】最大サイズを初期サイズの2倍（160px）に固定
+const MAX_SIZE = 160;
 
 const storyData = [
     {
@@ -32,7 +32,7 @@ const storyData = [
     },
     {
         type: "escape",
-        message: "若凪から逃げろ！（超巨大化）",
+        message: "若凪から逃げろ！",
         timeLimit: 7,
         baseSpeed: 6.0 
     }
@@ -89,9 +89,9 @@ function setupStage() {
         if (stage.type === "escape" && !isLocked) {
             currentEnemySpeed += 0.12; 
             
-            // 巨大化制限ロジック
-            if (enemySize < getMaxSize()) {
-                enemySize += 4.5; 
+            // 巨大化制限：160pxまで
+            if (enemySize < MAX_SIZE) {
+                enemySize += 3.0; 
             }
             
             updateEnemyStyle();
@@ -124,6 +124,7 @@ function moveEnemy() {
     const dy = py - ey;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
+    // 接触判定
     if (distance < (enemySize / 2) + 15) {
         triggerExplosion("「逃げ場なんて、最初から無かったんや。」");
         return;
@@ -141,7 +142,7 @@ function handleSuccess() {
     setTimeout(() => {
         currentStage++;
         if(currentStage >= storyData.length) {
-            alert("完全クリア！本番の理不尽をお楽しみに！");
+            alert("完全クリア！");
             currentStage = 0;
         }
         setupStage();
@@ -193,7 +194,4 @@ function processChoice(choice, element) {
 function isInside(x, y, rect) { return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom; }
 function resetGame() { overlay.classList.add('hidden'); currentStage = 0; setupStage(); }
 window.addEventListener('load', setupStage);
-window.addEventListener('resize', () => {
-    // リサイズ時も最大サイズを再計算
-    setupStage();
-});
+window.addEventListener('resize', setupStage);
