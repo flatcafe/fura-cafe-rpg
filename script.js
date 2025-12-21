@@ -17,7 +17,7 @@ let currentStage = 0;
 let timerInterval = null;
 let enemyX = 0, enemyY = 0;
 let currentEnemySpeed = 0;
-let enemySize = 80; // 初期サイズ
+let enemySize = 80;
 
 const storyData = [
     {
@@ -29,9 +29,9 @@ const storyData = [
     },
     {
         type: "escape",
-        message: "若凪から逃げろ！（巨大化注意）",
-        timeLimit: 8, // 巨大化を味わうために少し長めに設定
-        baseSpeed: 7.0 
+        message: "若凪から逃げろ！（超巨大化）",
+        timeLimit: 7,
+        baseSpeed: 6.0 
     }
 ];
 
@@ -39,7 +39,7 @@ function setupStage() {
     clearInterval(timerInterval);
     isLocked = false;
     isMoving = false;
-    enemySize = 80; // サイズを戻す
+    enemySize = 80; 
 
     const stage = storyData[currentStage];
     const centerX = window.innerWidth / 2;
@@ -49,8 +49,9 @@ function setupStage() {
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    enemyX = -100;
-    enemyY = -100;
+    // 敵を画面外のランダムな位置に配置
+    enemyX = Math.random() > 0.5 ? -200 : window.innerWidth + 100;
+    enemyY = Math.random() > 0.5 ? -200 : window.innerHeight + 100;
     updateEnemyStyle();
 
     player.classList.remove('hidden');
@@ -83,8 +84,9 @@ function setupStage() {
         timerText.innerText = remaining.toFixed(1);
 
         if (stage.type === "escape" && !isLocked) {
-            currentEnemySpeed += 0.1; // 徐々にスピードアップ
-            enemySize += 1.5; // 徐々に巨大化
+            currentEnemySpeed += 0.12; 
+            // 巨大化の度合いを大幅アップ（+1.5 → +4.5）
+            enemySize += 4.5; 
             updateEnemyStyle();
             moveEnemy();
         }
@@ -106,10 +108,8 @@ function updateEnemyStyle() {
 }
 
 function moveEnemy() {
-    // プレイヤーの中心座標
     const px = parseInt(playerRoot.style.left) + 40;
     const py = parseInt(playerRoot.style.top) + 40;
-    // 敵の中心座標
     const ex = enemyX + (enemySize / 2);
     const ey = enemyY + (enemySize / 2);
 
@@ -117,9 +117,9 @@ function moveEnemy() {
     const dy = py - ey;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
-    // 当たり判定：敵のサイズの半分＋プレイヤーのサイズの半分を基準に
-    if (distance < (enemySize / 2) + 20) {
-        triggerExplosion("「逃げ場なんてないんやで？」");
+    // 巨大化に合わせて判定範囲も物理的に拡大
+    if (distance < (enemySize / 2) + 15) {
+        triggerExplosion("「逃げ場なんて、最初から無かったんや。」");
         return;
     }
 
@@ -135,7 +135,7 @@ function handleSuccess() {
     setTimeout(() => {
         currentStage++;
         if(currentStage >= storyData.length) {
-            alert("完全クリア！本番をお楽しみに！");
+            alert("完全クリア！本番の理不尽をお楽しみに！");
             currentStage = 0;
         }
         setupStage();
@@ -154,6 +154,7 @@ function triggerExplosion(reason) {
     }, 600);
 }
 
+// 操作イベント（変更なし）
 playerRoot.addEventListener('mousedown', startDrag);
 playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); }, {passive: false});
 function startDrag() { if (!isLocked) { isMoving = true; playerRoot.classList.add('is-dragging'); } }
