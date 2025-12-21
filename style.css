@@ -41,17 +41,18 @@ body {
     font-weight: bold;
     text-align: center;
     z-index: 2;
-    transition: all 0.2s; /* 演出用の変化を滑らかに */
+    transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
 }
 
 .left { left: 20px; border-color: #3498db; }
 .right { right: 20px; border-color: #e74c3c; }
 
-/* 正解時のスタイル */
-.correct-flash {
-    background: rgba(46, 204, 113, 0.5) !important;
+/* 【修正】正解時のスタイル：確実に色が残るように設定 */
+.choice.correct-flash {
+    background-color: rgba(46, 204, 113, 0.8) !important;
     border-color: #2ecc71 !important;
     transform: translateY(-50%) scale(1.1);
+    z-index: 20;
 }
 
 #player-root { 
@@ -77,24 +78,26 @@ body {
     position: absolute; 
     font-size: 100px; 
     pointer-events: none;
+    z-index: 30;
 }
 
-/* 正解エフェクトのアニメーション */
+/* 【修正】キラキラ演出をより派手に */
 #success-effect {
-    animation: shine 0.8s forwards;
+    animation: shine 0.8s ease-out forwards;
     color: #f1c40f;
+    text-shadow: 0 0 20px #fff;
 }
 
 @keyframes shine {
     0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
-    50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
-    100% { transform: scale(2.0) rotate(360deg); opacity: 0; }
+    50% { transform: scale(1.8) rotate(180deg); opacity: 1; }
+    100% { transform: scale(2.5) rotate(360deg); opacity: 0; }
 }
 
 @keyframes bomb {
     0% { transform: scale(0.5); opacity: 1; }
     50% { transform: scale(2.0); opacity: 1; }
-    100% { transform: scale(3.0); opacity: 0; }
+    100% { transform: scale(3.5); opacity: 0; }
 }
 #explosion { animation: bomb 0.5s forwards; }
 
