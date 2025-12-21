@@ -8,8 +8,8 @@ const leftChoice = document.getElementById('choice-left');
 const rightChoice = document.getElementById('choice-right');
 const statusMessage = document.getElementById('status-message');
 
-let isDragging = false;
-let isProcessing = false; 
+let isMoving = false;
+let isLocked = false; 
 let currentStage = 0;
 
 const storyData = [
@@ -29,18 +29,19 @@ function initPlayer() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    playerRoot.classList.remove('dragging');
+    // transitionを有効にした状態で中央に戻す（ぬるーっと戻る）
+    playerRoot.classList.remove('is-dragging');
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    player.classList.remove('hidden', 'shaking');
+    player.classList.remove('hidden');
     explosion.classList.add('hidden');
     successEffect.classList.add('hidden');
     leftChoice.classList.remove('correct-flash');
     rightChoice.classList.remove('correct-flash');
     
-    isDragging = false;
-    isProcessing = false; 
+    isMoving = false;
+    isLocked = false; 
     
     const stage = storyData[currentStage];
     statusMessage.innerText = stage.message;
@@ -51,39 +52,37 @@ function initPlayer() {
 window.addEventListener('load', initPlayer);
 window.addEventListener('resize', initPlayer);
 
+// ドラッグ開始
 playerRoot.addEventListener('mousedown', startDrag);
 playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); });
 
 function startDrag() {
-    if (isProcessing) return;
-    isDragging = true;
-    playerRoot.classList.add('dragging');
-    player.classList.add('shaking');
+    if (isLocked) return;
+    isMoving = true;
+    playerRoot.classList.add('is-dragging'); // 瞬時に動くようにする
 }
 
+// 移動中
 window.addEventListener('mousemove', drag);
 window.addEventListener('touchmove', (e) => drag(e.touches[0]));
 
 function drag(e) {
-    if (!isDragging || isProcessing) return;
-    const x = e.clientX - 40;
-    const y = e.clientY - 40;
-    playerRoot.style.left = `${x}px`;
-    playerRoot.style.top = `${y}px`;
+    if (!isMoving || isLocked) return;
+    playerRoot.style.left = `${e.clientX - 40}px`;
+    playerRoot.style.top = `${e.clientY - 40}px`;
 }
 
+// 指を離した時
 window.addEventListener('mouseup', endDrag);
 window.addEventListener('touchend', endDrag);
 
-function endDrag(e) {
-    if (!isDragging || isProcessing) return;
+function endDrag() {
+    if (!isMoving || isLocked) return;
+    isMoving = false;
     
-    // 状態を確定
-    isDragging = false;
-    playerRoot.classList.remove('dragging');
-    player.classList.remove('shaking');
+    // transition（ぬるーっと戻る設定）を復活させる
+    playerRoot.classList.remove('is-dragging');
 
-    // 現在の座標で判定
     const px = parseInt(playerRoot.style.left) + 40;
     const py = parseInt(playerRoot.style.top) + 40;
     
@@ -92,26 +91,33 @@ function endDrag(e) {
     const stage = storyData[currentStage];
 
     if (isInside(px, py, rectL)) {
-        handleChoice(stage.left, leftChoice);
+        processChoice(stage.left, leftChoice);
     } else if (isInside(px, py, rectR)) {
-        handleChoice(stage.right, rightChoice);
+        processChoice(stage.right, rightChoice);
     } else {
-        // 判定外なら爆発せず、ぬるーっと戻る
+        // どこでもない場所で離したら、ぬるーっと中央に戻るだけ（爆発しない）
         initPlayer();
     }
 }
 
-function handleChoice(choice, element) {
-    isProcessing = true; // 演出が終わるまで操作不能
+function processChoice(choice, element) {
+    isLocked = true; 
     if (choice.isDie) {
-        triggerExplosion(choice.reason);
+        // 死亡時のみ爆発
+        player.classList.add('hidden');
+        explosion.classList.remove('hidden');
+        setTimeout(() => {
+            deathReason.innerText = choice.reason;
+            overlay.classList.remove('hidden');
+        }, 600);
     } else {
+        // 正解演出
         element.classList.add('correct-flash');
         successEffect.classList.remove('hidden');
         setTimeout(() => {
             currentStage++;
             if(currentStage >= storyData.length) {
-                alert("全ステージクリア！12/28 配信をお楽しみに！");
+                alert("全ステージクリア！12/28をお楽しみに！");
                 currentStage = 0;
             }
             initPlayer();
@@ -121,17 +127,6 @@ function handleChoice(choice, element) {
 
 function isInside(x, y, rect) {
     return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
-}
-
-function triggerExplosion(reason) {
-    player.classList.add('hidden');
-    explosion.classList.remove('hidden');
-    setTimeout(() => die(reason), 600);
-}
-
-function die(reason) {
-    deathReason.innerText = reason;
-    overlay.classList.remove('hidden');
 }
 
 function resetGame() {
