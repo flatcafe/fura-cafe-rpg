@@ -1,32 +1,20 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>りりのハードコアをクリアせよ！</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <div id="game-container">
-        <div id="status-message">りりを導け（落とすなよ？）</div>
-        
+<div id="game-container">
+    <div id="status-message">りりを導け（落とすと爆発するぞ）</div>
+    
+    <div class="choices-container">
         <div class="choice left" id="choice-left">安全そうな道</div>
         <div class="choice right" id="choice-right">怪しい洞窟</div>
+    </div>
 
-        <div id="player-root">
-            <div id="player">
-                <span style="font-size: 40px;">🐥</span>
-            </div>
-        </div>
+    <div id="player-root">
+        <div id="player">🐥</div>
+        <div id="explosion" class="hidden">💥</div> </div>
 
-        <div id="overlay" class="hidden">
-            <div id="death-screen">
-                <h1 id="death-title">YOU DIED</h1>
-                <p id="death-reason">理不尽な死</p>
-                <button onclick="resetGame()">リトライ</button>
-            </div>
+    <div id="overlay" class="hidden">
+        <div id="death-screen">
+            <h1 id="death-title">YOU DIED</h1>
+            <p id="death-reason"></p>
+            <button onclick="resetGame()">リトライ</button>
         </div>
     </div>
-    <script src="script.js"></script>
-</body>
-</html>
+</div>
