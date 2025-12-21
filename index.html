@@ -3,20 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>りりのハードコアをクリアせよ！</title>
+    <title>りり・イン・ワリオ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div id="game-container">
-        <div id="status-message">りりを導け（落とすと爆発するぞ）</div>
+        <div id="timer-container">
+            <div id="timer-bar"></div>
+        </div>
+
+        <div id="status-message"></div>
         
         <div class="choice left" id="choice-left"></div>
         <div class="choice right" id="choice-right"></div>
 
+        <div id="enemy" class="hidden">👹</div>
+
         <div id="player-root">
             <div id="player">🐥</div>
             <div id="explosion" class="hidden">💥</div>
-            <div id="success-effect" class="hidden">✨</div> </div>
+            <div id="success-effect" class="hidden">✨</div>
+        </div>
 
         <div id="overlay" class="hidden">
             <div id="death-screen">
