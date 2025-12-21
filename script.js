@@ -20,7 +20,7 @@ let currentEnemySpeed = 0;
 let enemySize = 80;
 
 // 【修正箇所】最大サイズを初期サイズの2倍（160px）に固定
-const MAX_SIZE = 160;
+const MAX_SIZE = 40;
 
 const storyData = [
     {
