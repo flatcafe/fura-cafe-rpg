@@ -27,29 +27,35 @@ body {
     box-sizing: border-box;
 }
 
-/* 縦長・縦書きの選択肢 */
+/* 縦長・縦書きの選択肢：確実に縦にするための修正 */
 .choice {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 60px; /* 縦長にするため幅を狭く */
-    height: 70%; /* 画面高の70%を使用 */
+    width: 60px; /* 細長く */
+    height: 70%; /* 縦に長く */
     border: 3px solid #fff;
     display: flex; 
     align-items: center; 
     justify-content: center;
-    background: rgba(255,255,255,0.05); 
+    background: rgba(255,255,255,0.1); 
     border-radius: 15px; 
     font-size: 1.5rem;
     font-weight: bold;
-    writing-mode: vertical-rl; /* 縦書き設定 */
+    
+    /* 縦書き設定を強化 */
+    writing-mode: vertical-rl; 
+    -webkit-writing-mode: vertical-rl;
     text-orientation: upright;
+    -webkit-text-orientation: upright;
+    
     z-index: 2;
     transition: background-color 0.3s, border-color 0.3s, transform 0.3s;
+    pointer-events: none; /* 判定はScriptで行うため、クリックイベントを無効化 */
 }
 
-.left { left: 5px; border-color: #3498db; }
-.right { right: 5px; border-color: #e74c3c; }
+.left { left: 10px; border-color: #3498db; }
+.right { right: 10px; border-color: #e74c3c; }
 
 .choice.correct-flash {
     background-color: rgba(46, 204, 113, 0.6) !important;
@@ -65,13 +71,13 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    /* ぬるーっと戻るためのアニメーション設定 */
+    /* ぬるーっと戻るためのアニメーション */
     transition: left 0.5s ease-out, top 0.5s ease-out;
+    cursor: grab;
 }
 
-/* ドラッグ中はtransitionを無効化して指に追従させる */
 #player-root.dragging {
-    transition: none;
+    transition: none; /* ドラッグ中は瞬時に動く */
 }
 
 #player { font-size: 60px; user-select: none; }
@@ -88,6 +94,7 @@ body {
     font-size: 100px; 
     pointer-events: none;
     z-index: 30;
+    /* 中央に配置 */
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
@@ -118,5 +125,5 @@ body {
 .hidden { display: none !important; }
 #death-screen { text-align: center; }
 #death-title { color: #ff0000; font-size: 3.5rem; margin: 0; }
-#death-reason { font-size: 1.2rem; margin: 20px 20px; color: #ccc; }
+#death-reason { font-size: 1.2rem; margin: 20px; color: #ccc; }
 button { padding: 15px 40px; font-size: 1.5rem; cursor: pointer; }
