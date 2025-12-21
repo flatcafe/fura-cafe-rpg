@@ -25,7 +25,6 @@ body {
     z-index: 5;
 }
 
-/* 選択肢を個別に、かつ確実に端へ配置 */
 .choice {
     position: absolute;
     top: 50%;
@@ -42,35 +41,30 @@ body {
     font-weight: bold;
     text-align: center;
     z-index: 2;
+    transition: all 0.2s; /* 演出用の変化を滑らかに */
 }
 
-/* 左端に固定 */
-.left { 
-    left: 20px; 
-    border-color: #3498db; 
-}
+.left { left: 20px; border-color: #3498db; }
+.right { right: 20px; border-color: #e74c3c; }
 
-/* 右端に固定 */
-.right { 
-    right: 20px; 
-    border-color: #e74c3c; 
+/* 正解時のスタイル */
+.correct-flash {
+    background: rgba(46, 204, 113, 0.5) !important;
+    border-color: #2ecc71 !important;
+    transform: translateY(-50%) scale(1.1);
 }
 
 #player-root { 
     position: absolute; 
     width: 80px; 
     height: 80px; 
-    cursor: grab; 
     z-index: 10;
     display: flex;
     justify-content: center;
     align-items: center;
 }
 
-#player { 
-    font-size: 60px; 
-    user-select: none;
-}
+#player { font-size: 60px; user-select: none; }
 
 .shaking { animation: shake 0.1s infinite; }
 @keyframes shake {
@@ -79,11 +73,22 @@ body {
     100% { transform: translate(1px, -1px); }
 }
 
-#explosion {
+#explosion, #success-effect {
     position: absolute; 
     font-size: 100px; 
-    animation: bomb 0.5s forwards;
     pointer-events: none;
+}
+
+/* 正解エフェクトのアニメーション */
+#success-effect {
+    animation: shine 0.8s forwards;
+    color: #f1c40f;
+}
+
+@keyframes shine {
+    0% { transform: scale(0.5) rotate(0deg); opacity: 0; }
+    50% { transform: scale(1.5) rotate(180deg); opacity: 1; }
+    100% { transform: scale(2.0) rotate(360deg); opacity: 0; }
 }
 
 @keyframes bomb {
@@ -91,6 +96,7 @@ body {
     50% { transform: scale(2.0); opacity: 1; }
     100% { transform: scale(3.0); opacity: 0; }
 }
+#explosion { animation: bomb 0.5s forwards; }
 
 #overlay {
     position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -103,12 +109,5 @@ body {
 #death-title { color: #ff0000; font-size: 4rem; margin: 0; }
 #death-reason { font-size: 1.5rem; margin: 20px 0; color: #ccc; }
 
-button { 
-    padding: 15px 40px; 
-    font-size: 1.5rem; 
-    background: #fff; 
-    border: none; 
-    border-radius: 5px; 
-    cursor: pointer; 
-}
+button { padding: 15px 40px; font-size: 1.5rem; background: #fff; border: none; border-radius: 5px; cursor: pointer; }
 button:hover { background: #ddd; }
