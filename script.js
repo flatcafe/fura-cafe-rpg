@@ -7,18 +7,24 @@ const leftChoice = document.getElementById('choice-left');
 const rightChoice = document.getElementById('choice-right');
 
 let isDragging = false;
-const startPos = { x: window.innerWidth / 2 - 40, y: window.innerHeight / 2 - 40 };
 
-// 初期位置にセット
+// 初期位置を画面中央に設定する関数
 function initPlayer() {
-    playerRoot.style.left = `${startPos.x}px`;
-    playerRoot.style.top = `${startPos.y}px`;
+    const screenWidth = window.innerWidth;
+    const screenHeight = window.innerHeight;
+    
+    // playerRootのサイズ(80px)の半分を引いて中央寄せ
+    playerRoot.style.left = `${(screenWidth / 2) - 40}px`;
+    playerRoot.style.top = `${(screenHeight / 2) - 40}px`;
+    
     player.classList.remove('hidden');
     explosion.classList.add('hidden');
     isDragging = false;
 }
 
-initPlayer();
+// 起動時と画面リサイズ時に位置を合わせる
+window.addEventListener('load', initPlayer);
+window.addEventListener('resize', initPlayer);
 
 // ドラッグ開始
 playerRoot.addEventListener('mousedown', startDrag);
@@ -41,8 +47,7 @@ function drag(e) {
     playerRoot.style.left = `${x}px`;
     playerRoot.style.top = `${y}px`;
 
-    // 移動中に選択肢に触れたかチェック
-    checkCollision(x + 40, y + 40);
+    checkCollision(e.clientX, e.clientY);
 }
 
 // 指を離した時
@@ -51,10 +56,11 @@ window.addEventListener('touchend', endDrag);
 
 function endDrag() {
     if (!isDragging) return;
+    isDragging = false;
+    player.classList.remove('shaking');
     
-    // 選択肢に到達せずに離した場合は爆発してリセット
+    // 選択肢に触れていない状態で離したら爆発
     triggerExplosion("「中途半端に放り出すな！」 by 若凪");
-    setTimeout(initPlayer, 1200); 
 }
 
 function checkCollision(px, py) {
@@ -71,7 +77,7 @@ function checkCollision(px, py) {
 }
 
 function isInside(x, y, rect) {
-    return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom;
+    return x > rect.left && x < rect.right && y > rect.bottom - 120 && y < rect.bottom;
 }
 
 function triggerExplosion(reason) {
