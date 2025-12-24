@@ -19,8 +19,8 @@ let enemyX = 0, enemyY = 0;
 let currentEnemySpeed = 0;
 let enemySize = 80;
 
-// 【修正箇所】最大サイズを初期サイズの2倍（160px）に固定
-const MAX_SIZE = 40;
+const MIN_SIZE = 80;
+const MAX_SIZE = 160; 
 
 const storyData = [
     {
@@ -34,7 +34,7 @@ const storyData = [
         type: "escape",
         message: "若凪から逃げろ！",
         timeLimit: 7,
-        baseSpeed: 6.0 
+        baseSpeed: 5.0 
     }
 ];
 
@@ -42,19 +42,18 @@ function setupStage() {
     clearInterval(timerInterval);
     isLocked = false;
     isMoving = false;
-    enemySize = 80; 
+    enemySize = MIN_SIZE;
 
     const stage = storyData[currentStage];
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
-    playerRoot.classList.remove('is-dragging');
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    // 敵を画面外に配置
-    enemyX = Math.random() > 0.5 ? -200 : window.innerWidth + 100;
-    enemyY = Math.random() > 0.5 ? -200 : window.innerHeight + 100;
+    // 若凪の初期位置（画面外）
+    enemyX = -200;
+    enemyY = -200;
     updateEnemyStyle();
 
     player.classList.remove('hidden');
@@ -87,13 +86,10 @@ function setupStage() {
         timerText.innerText = remaining.toFixed(1);
 
         if (stage.type === "escape" && !isLocked) {
-            currentEnemySpeed += 0.12; 
-            
-            // 巨大化制限：160pxまで
+            currentEnemySpeed += 0.08; 
             if (enemySize < MAX_SIZE) {
-                enemySize += 3.0; 
+                enemySize += 1.0; 
             }
-            
             updateEnemyStyle();
             moveEnemy();
         }
@@ -109,7 +105,6 @@ function setupStage() {
 function updateEnemyStyle() {
     enemy.style.width = enemySize + "px";
     enemy.style.height = enemySize + "px";
-    enemy.style.fontSize = (enemySize * 0.8) + "px";
     enemy.style.left = enemyX + "px";
     enemy.style.top = enemyY + "px";
 }
@@ -124,9 +119,8 @@ function moveEnemy() {
     const dy = py - ey;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
-    // 接触判定
-    if (distance < (enemySize / 2) + 15) {
-        triggerExplosion("「逃げ場なんて、最初から無かったんや。」");
+    if (distance < (enemySize / 2) + 30) {
+        triggerExplosion("「捕まえたで！逃がさへんよ。」");
         return;
     }
 
@@ -142,7 +136,7 @@ function handleSuccess() {
     setTimeout(() => {
         currentStage++;
         if(currentStage >= storyData.length) {
-            alert("完全クリア！");
+            alert("全ステージクリア！配信でお会いしましょう！");
             currentStage = 0;
         }
         setupStage();
@@ -161,9 +155,10 @@ function triggerExplosion(reason) {
     }, 600);
 }
 
+// ドラッグ操作
 playerRoot.addEventListener('mousedown', startDrag);
 playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); }, {passive: false});
-function startDrag() { if (!isLocked) { isMoving = true; playerRoot.classList.add('is-dragging'); } }
+function startDrag() { if (!isLocked) { isMoving = true; } }
 window.addEventListener('mousemove', drag);
 window.addEventListener('touchmove', (e) => drag(e.touches[0]), {passive: false});
 function drag(e) {
@@ -176,7 +171,6 @@ window.addEventListener('touchend', endDrag);
 function endDrag() {
     if (!isMoving || isLocked) return;
     isMoving = false;
-    playerRoot.classList.remove('is-dragging');
     const stage = storyData[currentStage];
     if (stage.type === "choice") {
         const px = parseInt(playerRoot.style.left) + 40;
@@ -194,4 +188,3 @@ function processChoice(choice, element) {
 function isInside(x, y, rect) { return x > rect.left && x < rect.right && y > rect.top && y < rect.bottom; }
 function resetGame() { overlay.classList.add('hidden'); currentStage = 0; setupStage(); }
 window.addEventListener('load', setupStage);
-window.addEventListener('resize', setupStage);
