@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Soccer Kick - Full Version</title>
+    <title>Soccer Kick - Adjusted</title>
     <style>
         body {
             margin: 0;
@@ -16,7 +16,6 @@
             height: 100vh;
         }
 
-        /* 選手の画像を表示するコンテナ */
         .stage {
             position: relative;
             width: 100%;
@@ -28,21 +27,20 @@
             background-position: center;
         }
 
-        /* 飛ばすキャラクター(char_red.png) */
         #character {
             position: absolute;
-            bottom: 18%; 
-            left: 17%; /* スクリーンショットに合わせて微調整 */
+            /* ボールに被るように bottom を 18% から 21.5% へ引き上げ */
+            bottom: 21.5%; 
+            left: 17%; 
             width: 65px; 
             height: auto;
             opacity: 0;
             pointer-events: none;
             z-index: 10;
-            /* 中央寄せを基準にする */
             transform: translateX(-50%) scale(1);
         }
 
-        /* 震えるアニメーション（中央寄せを維持） */
+        /* アニメーション */
         @keyframes shake {
             0% { transform: translateX(-50%) translate(0, 0); }
             25% { transform: translateX(-50%) translate(2px, -2px); }
@@ -51,7 +49,6 @@
             100% { transform: translateX(-50%) translate(0, 0); }
         }
 
-        /* 飛んでいくアニメーション（JSで計算された座標へ） */
         @keyframes flyAway {
             0% {
                 transform: translateX(-50%) translate(0, 0) scale(1);
@@ -63,18 +60,9 @@
             }
         }
 
-        /* 状態管理用クラス */
-        .is-visible { 
-            opacity: 1 !important; 
-            transition: opacity 0.2s; 
-        }
-        .is-shaking { 
-            animation: shake 0.1s infinite; 
-        }
-        .is-flying { 
-            animation: flyAway 0.7s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-        }
-
+        .is-visible { opacity: 1 !important; transition: opacity 0.2s; }
+        .is-shaking { animation: shake 0.1s infinite; }
+        .is-flying { animation: flyAway 0.7s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); }
     </style>
 </head>
 <body>
@@ -85,30 +73,25 @@
 
     <script>
         const char = document.getElementById('character');
-        const waitTime = 2000;   // 現れてから震えるまでの待機時間
-        const shakeTime = 500;   // 震えている時間
-        const resetTime = 1200;  // 消えてから再出現するまでの時間
+        const waitTime = 2000;   
+        const shakeTime = 500;   
+        const resetTime = 1200;  
 
         function launchSequence() {
-            // クリーンアップ
             char.className = '';
             char.style.opacity = "0";
 
-            // 1. パッと現れる
             setTimeout(() => {
                 char.classList.add('is-visible');
                 
-                // 2. 待機後に震え始める
                 setTimeout(() => {
                     char.classList.add('is-shaking');
 
-                    // 3. 震え終わったら飛ばす
                     setTimeout(() => {
                         char.classList.remove('is-shaking');
                         setRandomTarget();
                         char.classList.add('is-flying');
 
-                        // 4. アニメーション完了後にリセットしてループ
                         setTimeout(() => {
                             launchSequence();
                         }, 700); 
@@ -120,9 +103,8 @@
         }
 
         function setRandomTarget() {
-            // 360度ランダム
             const angle = Math.random() * Math.PI * 2;
-            const distance = window.innerHeight; // 画面サイズに合わせて飛ばす
+            const distance = Math.max(window.innerWidth, window.innerHeight); 
             
             const tx = Math.cos(angle) * distance;
             const ty = Math.sin(angle) * distance;
@@ -131,9 +113,7 @@
             char.style.setProperty('--ty', `${ty}px`);
         }
 
-        // 実行
         window.onload = () => {
-            // 初回のみ少し早めに開始
             setTimeout(launchSequence, 500);
         };
     </script>
