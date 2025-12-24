@@ -48,7 +48,7 @@ body {
 
 .correct-flash { background-color: #2ecc71 !important; border-color: #fff !important; }
 
-/* 敵（若凪）の設定 */
+/* 敵（若凪）: char_white.png を適用 */
 #enemy {
     position: absolute; 
     z-index: 40; pointer-events: none;
@@ -59,7 +59,7 @@ body {
     filter: drop-shadow(0 0 5px rgba(255,0,0,0.5));
 }
 
-/* プレイヤー（りり）の設定 */
+/* プレイヤー（りり）: char_red.png を適用 */
 #player-root { 
     position: absolute; width: 80px; height: 80px; z-index: 50;
 }
