@@ -20,7 +20,7 @@ let currentEnemySpeed = 0;
 let enemySize = 80;
 
 const MIN_SIZE = 80;
-const MAX_SIZE = 160; 
+const MAX_SIZE = 160; // 巨大化の限界（2倍）
 
 const storyData = [
     {
@@ -48,10 +48,11 @@ function setupStage() {
     const centerX = window.innerWidth / 2;
     const centerY = window.innerHeight / 2;
     
+    // プレイヤー初期位置
     playerRoot.style.left = `${centerX - 40}px`;
     playerRoot.style.top = `${centerY - 40}px`;
     
-    // 若凪の初期位置（画面外）
+    // 若凪初期位置
     enemyX = -200;
     enemyY = -200;
     updateEnemyStyle();
@@ -87,6 +88,7 @@ function setupStage() {
 
         if (stage.type === "escape" && !isLocked) {
             currentEnemySpeed += 0.08; 
+            // 巨大化ロジック
             if (enemySize < MAX_SIZE) {
                 enemySize += 1.0; 
             }
@@ -119,6 +121,7 @@ function moveEnemy() {
     const dy = py - ey;
     const distance = Math.sqrt(dx * dx + dy * dy);
     
+    // 判定（画像サイズに合わせて調整）
     if (distance < (enemySize / 2) + 30) {
         triggerExplosion("「捕まえたで！逃がさへんよ。」");
         return;
@@ -136,7 +139,7 @@ function handleSuccess() {
     setTimeout(() => {
         currentStage++;
         if(currentStage >= storyData.length) {
-            alert("全ステージクリア！配信でお会いしましょう！");
+            alert("全ステージクリア！おめでとうございます！");
             currentStage = 0;
         }
         setupStage();
@@ -155,7 +158,7 @@ function triggerExplosion(reason) {
     }, 600);
 }
 
-// ドラッグ操作
+// ドラッグ操作系
 playerRoot.addEventListener('mousedown', startDrag);
 playerRoot.addEventListener('touchstart', (e) => { e.preventDefault(); startDrag(); }, {passive: false});
 function startDrag() { if (!isLocked) { isMoving = true; } }
