@@ -48,7 +48,7 @@ body {
 
 .correct-flash { background-color: #2ecc71 !important; border-color: #fff !important; }
 
-/* 敵（若凪）: char_white.png を適用 */
+/* 敵（若凪）: 画像のみ表示 */
 #enemy {
     position: absolute; 
     z-index: 40; pointer-events: none;
@@ -59,7 +59,7 @@ body {
     filter: drop-shadow(0 0 5px rgba(255,0,0,0.5));
 }
 
-/* プレイヤー（りり）: char_red.png を適用 */
+/* プレイヤー（りり）: 画像のみ表示 */
 #player-root { 
     position: absolute; width: 80px; height: 80px; z-index: 50;
 }
@@ -88,4 +88,4 @@ body {
 #death-screen { text-align: center; }
 #death-title { color: #ff0000; font-size: 3.5rem; margin: 0; }
 #death-reason { font-size: 1.2rem; margin: 20px; }
-button { padding: 15px 40px; font-size: 1.5rem; cursor: pointer; background: #fff; border: none; border-radius: 5px; }
+button { padding: 15px 40px; font-size: 1.5rem; cursor: pointer; background: #fff; border: none; border-radius: 5px; color: #000; }
