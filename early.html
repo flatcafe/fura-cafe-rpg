@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Kick Animation - Char Red</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0b1a2a; /* 画像の背景に近い濃紺 */
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: sans-serif;
+        }
+
+        /* 選手の画像を表示するコンテナ */
+        .stage {
+            position: relative;
+            width: 100%;
+            max-width: 500px; /* 画像の比率に合わせて調整 */
+            height: 90vh;
+            background-image: url('512TeYDXUlL._AC_UF894,1000_QL80_.jpg');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+        }
+
+        /* 飛ばすキャラクター(char_red.png) */
+        #character {
+            position: absolute;
+            /* 画像内のサッカーボールの位置に配置 */
+            bottom: 18%; 
+            left: 10%;
+            width: 80px; /* キャラクターのサイズ */
+            height: auto;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        /* 震えるアニメーション */
+        @keyframes shake {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(2px, -2px) rotate(1deg); }
+            50% { transform: translate(-2px, 2px) rotate(-1deg); }
+            75% { transform: translate(2px, 2px) rotate(1deg); }
+            100% { transform: translate(0, 0) rotate(0deg); }
+        }
+
+        /* 飛んでいくアニメーション */
+        @keyframes flyAway {
+            0% {
+                transform: translate(0, 0) scale(1);
+                opacity: 1;
+            }
+            100% {
+                /* JavaScriptで計算されたランダムな座標へ */
+                transform: translate(var(--tx), var(--ty)) scale(0.2);
+                opacity: 0;
+            }
+        }
+
+        /* 状態管理用のクラス */
+        .is-visible { opacity: 1 !important; transition: opacity 0.2s; }
+        .is-shaking { animation: shake 0.1s infinite; }
+        .is-flying { animation: flyAway 0.6s forwards cubic-bezier(0.25, 0.46, 0.45, 0.94); }
+
+    </style>
+</head>
+<body>
+
+    <div class="stage">
+        <img src="char_red.png" id="character" alt="Character">
+    </div>
+
+    <script>
+        const char = document.getElementById('character');
+        const waitTime = 2000;   // 現れてから震え出すまでの待機時間
+        const shakeTime = 600;   // 震えている時間
+        const resetTime = 1500;  // 消えてから再出現するまでの時間
+
+        function launchSequence() {
+            // 1. パッと現れる
+            char.className = 'is-visible';
+            
+            // 2. 待機後に震え始める
+            setTimeout(() => {
+                char.classList.add('is-shaking');
+
+                // 3. 震え終わったらランダムな方向に飛ばす
+                setTimeout(() => {
+                    char.classList.remove('is-shaking');
+                    setRandomTarget();
+                    char.classList.add('is-flying');
+
+                    // 4. アニメーション完了後にリセットして最初に戻る
+                    setTimeout(() => {
+                        char.className = ''; 
+                        setTimeout(launchSequence, resetTime);
+                    }, 600); 
+
+                }, shakeTime);
+
+            }, waitTime);
+        }
+
+        function setRandomTarget() {
+            // 360度どの方向にも飛ぶように設定
+            const angle = Math.random() * Math.PI * 2;
+            const distance = 1000; // 画面外まで飛ばす距離
+            
+            const tx = Math.cos(angle) * distance;
+            const ty = Math.sin(angle) * distance;
+
+            char.style.setProperty('--tx', `${tx}px`);
+            char.style.setProperty('--ty', `${ty}px`);
+        }
+
+        // ページ読み込み時に開始
+        window.onload = launchSequence;
+    </script>
+</body>
+</html>
